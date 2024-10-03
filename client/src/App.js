@@ -14,6 +14,7 @@ function App() {
     if (!link) return alert('Please enter a YouTube link');
     setLoading(true);
     try {
+      // If your backend is running on a different port, update the link below accordingly, but make sure to keep the /convert, /download, and /clear endpoints unchanged.
       const response = await axios.post('http://localhost:3001/convert', { link });
       setTitle(response.data.title);
       setFilePath(response.data.path);

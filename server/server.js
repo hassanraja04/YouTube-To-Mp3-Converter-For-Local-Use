@@ -8,6 +8,7 @@ const cors = require('cors');
 const app = express();
 app.use(express.json());
 
+// Change the origin to match the link where the frontend is running
 app.use(cors({
   origin: 'http://localhost:3000'
 }));
@@ -101,6 +102,7 @@ app.post('/clear', (req, res) => {
   }
 });
 
+// Running on PORT 3001 by default but you can change it by specifying the PORT variable value in the .env file
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
