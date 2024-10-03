@@ -13,16 +13,11 @@ app.use(cors({
 }));
 
 
-app.get("/", (req, res) => {
-  res.json("Hello world")
-})
-
-// Helper function to clean and simplify YouTube links
 const cleanYouTubeLink = (link) => {
-  return link.split('?')[0]; // Remove query parameters
+  return link.split('?')[0]; 
 };
 
-// Variable to store the current temporary file path
+
 let tempFilePath = '';
 
 app.post('/convert', async (req, res) => {
@@ -35,24 +30,24 @@ app.post('/convert', async (req, res) => {
     return res.status(400).send('Invalid YouTube link');
   }
 
-  // Get video info to extract the title
+  
   try {
     const info = await ytdl.getInfo(cleanedLink);
-    const title = info.videoDetails.title.replace(/[^a-zA-Z0-9 ]/g, ""); // Remove special characters from title
+    const title = info.videoDetails.title.replace(/[^a-zA-Z0-9 ]/g, ""); 
     tempFilePath = path.resolve(__dirname, `audio-${Date.now()}.mp3`);
 
-    // Use youtube-dl-exec to download and convert the video to mp3
+    
     await youtubedl(cleanedLink, {
       output: tempFilePath,
       extractAudio: true,
       audioFormat: 'mp3',
       audioQuality: '128k',
-      noPlaylist: true // Ensure it doesn't try to download playlists
+      noPlaylist: true 
     });
 
     console.log('Conversion finished, sending file to client');
     if (fs.existsSync(tempFilePath)) {
-      // Send the file path and title back to the frontend
+      
       res.json({ path: tempFilePath, title });
     } else {
       console.log('File not found after conversion');
@@ -78,18 +73,18 @@ app.get('/download', (req, res) => {
       console.log('File sent successfully, deleting local file');
     }
 
-    // Remove the file after the download
+    
     fs.unlink(path, (unlinkErr) => {
       if (unlinkErr) {
         console.error('Error deleting file:', unlinkErr);
       } else {
-        tempFilePath = ''; // Reset the temp file path after deletion
+        tempFilePath = ''; 
       }
     });
   });
 });
 
-// Endpoint to clear the temporary file manually if needed
+
 app.post('/clear', (req, res) => {
   if (tempFilePath && fs.existsSync(tempFilePath)) {
     fs.unlink(tempFilePath, (err) => {
@@ -97,7 +92,7 @@ app.post('/clear', (req, res) => {
         console.error('Error deleting file:', err);
         return res.status(500).send('Error clearing the file');
       }
-      tempFilePath = ''; // Reset the temporary file path
+      tempFilePath = ''; 
       console.log('Temporary file cleared successfully');
       res.send('File cleared successfully');
     });
