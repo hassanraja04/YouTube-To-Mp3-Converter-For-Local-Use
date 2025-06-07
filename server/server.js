@@ -33,10 +33,33 @@ app.post('/convert', async (req, res) => {
 
   
   try {
-    const info = await ytdl.getInfo(cleanedLink);
-    const title = info.videoDetails.title.replace(/[^a-zA-Z0-9 ]/g, ""); 
-    tempFilePath = path.resolve(__dirname, `audio-${Date.now()}.mp3`);
+    // const info = await ytdl.getInfo(cleanedLink);
+    // const title = info.videoDetails.title.replace(/[^a-zA-Z0-9 ]/g, ""); 
+    // tempFilePath = path.resolve(__dirname, `audio-${Date.now()}.mp3`);
 
+    // first try ytdl-core for title; if that fails (YouTube’s sig extraction changed), fall back to yt-dlp JSON
+    let title;
+    try {
+      const info = await ytdl.getInfo(cleanedLink);
+      title = info.videoDetails.title.replace(/[^a-zA-Z0-9 ]/g, "");
+    } catch (err) {
+      console.warn('ytdl-core getInfo failed, falling back to yt-dlp:', err.message);
+      try {
+        const jsonOutput = await youtubedl(cleanedLink, {
+          dumpSingleJson: true,
+          noWarnings: true,
+          noCallHome: true,
+        });
+        const meta = typeof jsonOutput === 'string'
+        ? JSON.parse(jsonOutput)
+        : jsonOutput;
+        title = meta.title.replace(/[^a-zA-Z0-9 ]/g, "");      
+      } catch (err2) {
+        console.error('yt-dlp info extraction failed:', err2);
+        return res.status(500).send('Error extracting video info');
+      }
+    } 
+    tempFilePath = path.resolve(__dirname, `audio-${Date.now()}.mp3`);
     
     await youtubedl(cleanedLink, {
       output: tempFilePath,

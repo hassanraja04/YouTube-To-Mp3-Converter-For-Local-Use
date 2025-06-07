@@ -129,7 +129,7 @@ button svg {
   letter-spacing: inherit;
   border: none;
   box-sizing: border-box;
-  background: none;
+  background-color: rgba(216, 216, 216, 0.494);
   height: 2.5em;
   padding: 10px 14px;
   width: 100%;
